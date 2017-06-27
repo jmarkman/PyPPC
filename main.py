@@ -56,7 +56,7 @@ class GUI:
             child.grid_configure(padx=5, pady=5)
 
     def populate_county_combobox(self, event):
-        """Fills the county combobox based on the selection in """
+        """Fills the county combobox based on the selection in the state combobox"""
         self.county_dropdown['values'] = self.data.get_county_list(self.state_dropdown.get())
 
     def populate_results_tree(self, event):

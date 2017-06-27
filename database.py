@@ -1,6 +1,11 @@
+#! python3
+"""User-defined SQLite database access and reading"""
 import sqlite3
 
 class Query:
+    """Class representation of the connection to the sqlite database
+    and the queries made to it to retrieve the PPC codes
+    """
     # Class variables
     db_conn = None
     db_cursor = None
@@ -42,10 +47,8 @@ class Query:
         gui_ppc_codes = []
         for code in ppc_codes:
             gui_ppc_codes.append(code)
-            # print("Town: {0}\n\tCode: {1}".format(code[0], code[1]))
         return gui_ppc_codes
 
     def close_connection(self):
+        """Wrapper for closing the connection to the database"""
         self.db_conn.close()
-
-# TODO: Unit testing, no matter how minor it might be

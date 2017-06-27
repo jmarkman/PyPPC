@@ -1,20 +1,21 @@
+#! python3
+"""GUI for PPC Lookup program"""
+import os
+import database
 import tkinter as tk
 from tkinter import ttk
-import database
-import os
 
 class GUI:
+    """Object-oriented GUI building"""
     data = None
 
     def __init__(self):
         """Window initializer"""
-        script_directory = os.path.dirname(__file__)
-        # script_directory = os.getcwd()
+        sqlite_home = os.path.join(os.path.dirname(__file__), 'lookup.sqlite')
 
         self.main_window = tk.Tk()
-        self.data = database.Query(script_directory + r'\lookup.sqlite') # Change before deployment
+        self.data = database.Query(sqlite_home) # Change before deployment
         self.main_window.title("PPC Lookup")
-        #self.main_window.iconbitmap(script_directory + r'\search.ico')
         self.main_window.resizable(0, 0)
         self.create_widgets()
 
@@ -53,33 +54,31 @@ class GUI:
 
         for child in self.main_window.winfo_children():
             child.grid_configure(padx=5, pady=5)
-        
-        self.end_query()
 
     def populate_county_combobox(self, event):
         """Fills the county combobox based on the selection in """
         self.county_dropdown['values'] = self.data.get_county_list(self.state_dropdown.get())
-        self.end_query()
 
     def populate_results_tree(self, event):
         """Fills the results treeview with the towns and associated protection codes"""
         # Get the current contents of the Treeview and store them
         tree_contents = self.results_tree.get_children()
-        if len(tree_contents) > 0:
+        if tree_contents: # If there's nothing currently in the treeview, see notes
             for row in self.results_tree.get_children():
                 self.results_tree.delete(row)
         results = self.data.get_ppc_codes(self.state_dropdown.get(), self.county_dropdown.get())
         for result in results:
             self.results_tree.insert('', tk.END, text='', values=(result[0], result[1]))
-        self.end_query()
-
-    def end_query(self):
-        """Call to the database module that closes the connection after all is said and done"""
-        self.data.close_connection()
-
 
 def launch():
-    window = GUI()
+    """Start the program"""
+    GUI()
 
 if __name__ == '__main__':
     launch()
+
+
+"""
+Notes:
+populate_results_tree(): https://stackoverflow.com/questions/43121340
+"""

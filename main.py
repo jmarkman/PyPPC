@@ -1,9 +1,9 @@
 #! python3
 """GUI for PPC Lookup program"""
 import os
-import database
 import tkinter as tk
 from tkinter import ttk
+import database
 
 class GUI:
     """Object-oriented GUI building"""
@@ -11,16 +11,22 @@ class GUI:
 
     def __init__(self):
         """Window initializer"""
+        # Relative location of the SQLite DB
         sqlite_home = os.path.join(os.path.dirname(__file__), 'lookup.sqlite')
+        # Relative icon location
+        icon = os.path.join(os.path.dirname(__file__), 'search.ico')
 
+        # Window generation
         self.main_window = tk.Tk()
-        self.data = database.Query(sqlite_home) # Change before deployment
+        self.data = database.Query(sqlite_home)
         self.main_window.title("PPC Lookup")
+        self.main_window.iconbitmap(icon)
         self.main_window.resizable(0, 0)
         self.create_widgets()
 
+        # Mainloop
         self.main_window.mainloop()
-
+   
     def create_widgets(self):
         """Creates the various elements of the tkinter GUI"""
         # Labels
@@ -49,6 +55,7 @@ class GUI:
         self.results_tree['show'] = 'headings'
         self.results_scroll = tk.Scrollbar(self.main_window, orient=tk.VERTICAL, command=self.results_tree.yview)
         self.results_tree.configure(yscrollcommand=self.results_scroll.set)
+        self.results_tree.bind('<ButtonRelease-1>', self.copy_code)
         self.results_scroll.grid(column=3, row=2, sticky='ns')
         self.results_tree.grid(column=0, columnspan=2, row=2)
 
@@ -63,12 +70,24 @@ class GUI:
         """Fills the results treeview with the towns and associated protection codes"""
         # Get the current contents of the Treeview and store them
         tree_contents = self.results_tree.get_children()
-        if tree_contents: # If there's nothing currently in the treeview, see notes
+        if tree_contents: # If there's nothing currently in the treeview (see notes)
             for row in self.results_tree.get_children():
                 self.results_tree.delete(row)
         results = self.data.get_ppc_codes(self.state_dropdown.get(), self.county_dropdown.get())
         for result in results:
             self.results_tree.insert('', tk.END, text='', values=(result[0], result[1]))
+    
+    def copy_code(self, event):
+        """Allows the user to copy a code after clicking on an item in the treeview"""
+        # Focus on selected item in treeview
+        selection = self.results_tree.focus()
+        # Use the item() function from Treeview to look at the selection. 
+        code = self.results_tree.item(selection)
+        # Access the dictionary returned from the item() function to get the code
+        # This is an example return value:
+        # {'open': 0, 'image': '', 'values': ['Calaveras', 5], 'tags': '', 'text': ''}
+        self.main_window.clipboard_append(code['values'][1])
+
 
 def launch():
     """Start the program"""
@@ -76,7 +95,6 @@ def launch():
 
 if __name__ == '__main__':
     launch()
-
 
 """
 Notes:
